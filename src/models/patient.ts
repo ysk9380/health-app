@@ -165,6 +165,6 @@ export interface UpdatePatientEmailRequestModel {
 
 export interface InsertPatientHealthVitalRequestModel {
   patientId: number;
-  healthVitalTypeCode: string;
-  healthVitalValue: string;
+  healthVitalCode: string;
+  content: string;
 }

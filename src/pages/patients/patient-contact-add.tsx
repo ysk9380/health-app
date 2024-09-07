@@ -178,7 +178,9 @@ const PatientContactAdd: React.FC<PatientContactAddProps> = ({
     return result;
   };
 
-  const addNewOrUpdateExistingPatientEmail = async (emailAddress: string) => {
+  const addNewOrUpdateExistingPatientEmail = async (
+    emailAddress: string
+  ): Promise<boolean> => {
     let result = false;
     if (emailAddress !== "") {
       if (currentPatientEmail && currentPatientEmail.patientEmailId > 0) {

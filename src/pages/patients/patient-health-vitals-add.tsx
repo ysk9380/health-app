@@ -50,6 +50,7 @@ const PatientHealthVitalsAdd: React.FC<PatientHealthVitalsAddProps> = ({
 }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+
   const currentPatientProfile = useSelector(
     (state: RootState) => state.currentPatient.profile
   );
@@ -90,26 +91,32 @@ const PatientHealthVitalsAdd: React.FC<PatientHealthVitalsAddProps> = ({
   const addNewPatientHealthVital = async (
     healthVitalTypeCode: string,
     healthVitalTypeValue: string
-  ) => {
+  ): Promise<boolean> => {
+    let result = false;
     if (healthVitalTypeCode !== "" && healthVitalTypeValue !== "") {
       const insertPatientHealthVitalRequestModel: InsertPatientHealthVitalRequestModel =
         {
           patientId: currentPatientProfile?.patientId ?? 0,
+          healthVitalCode: healthVitalTypeCode,
+          content: healthVitalTypeValue,
+        };
+
+      const newPatientHealthVital = await insertPatientHealthVital(
+        insertPatientHealthVitalRequestModel
+      );
+
+      if (newPatientHealthVital !== null) {
+        const patientHealthVitalState: PatientHealthVitalState = {
+          patientHealthVitalId: newPatientHealthVital.patientHealthVitalId,
+          patientId: currentPatientProfile?.patientId ?? 0,
           healthVitalTypeCode: healthVitalTypeCode,
           healthVitalValue: healthVitalTypeValue,
         };
-
-      const patientHealthVitalId = await insertPatientHealthVital(
-        insertPatientHealthVitalRequestModel
-      );
-      const patientHealthVitalState: PatientHealthVitalState = {
-        patientHealthVitalId: patientHealthVitalId,
-        patientId: currentPatientProfile?.patientId ?? 0,
-        healthVitalTypeCode: healthVitalTypeCode,
-        healthVitalValue: healthVitalTypeValue,
-      };
-      dispatch(setPatientHealthVital(patientHealthVitalState));
+        dispatch(setPatientHealthVital(patientHealthVitalState));
+        result = true;
+      }
     }
+    return result;
   };
 
   const addNewPatientHealthVitals = async (data: PatientHealthVitals) => {
@@ -124,7 +131,7 @@ const PatientHealthVitalsAdd: React.FC<PatientHealthVitalsAddProps> = ({
         ),
       ]);
     } catch (error) {
-      console.error("Error inserting patient contacts:", error);
+      console.error("Error inserting patient health vitals:", error);
     } finally {
       dispatch(setLoading(false));
     }

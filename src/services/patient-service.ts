@@ -8,6 +8,7 @@ import {
   InsertPatientProfileRequestModel,
   PatientAddressState,
   PatientEmailState,
+  PatientHealthVitalState,
   PatientIdentityState,
   PatientPhoneState,
   PatientProfileState,
@@ -272,15 +273,24 @@ export async function updatePatientEmail(
 
 export async function insertPatientHealthVital(
   data: InsertPatientHealthVitalRequestModel
-): Promise<number> {
-  const randomNumber = await new Promise<number>((resolve) => {
-    setTimeout(() => {
-      const randomNum = Math.floor(Math.random() * 100);
-      resolve(randomNum);
-    }, 1000);
-  });
+): Promise<PatientHealthVitalState | null> {
+  try {
+    const response =
+      await HttpService.getHttpClientInstance().post<PatientHealthVitalState>(
+        "api/patients/vitals",
+        data
+      );
 
-  return randomNumber;
+    if (response.status === 201) {
+      response.data.healthVitalTypeCode = data.healthVitalCode;
+      return response.data;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error("Failed to insert patient health vitals", error);
+    throw error;
+  }
 }
 
 export async function getPatientProfile(
